@@ -2,10 +2,10 @@ version: 2.1
 
 jobs:
   build:
-    working_directory: ~/repo
+    working_directory: ~/udagram-microservices
 
     docker:
-      - image: circleci/node:13
+      - image: circleci/node:14
 
     steps:
       - checkout
@@ -21,15 +21,19 @@ jobs:
           command: |
             docker image prune --all
             docker-compose -f docker-compose-build.yaml build --parallel
+            docker tag udagram-frontend nvfede/udagram-frontend
+            docker tag udagram-api-feed nvfede/udagram-api-feed
+            docker tag udagram-api-user nvfede/udagram-api-user
+            docker tag udagram-reverseproxy nvfede/udagram-reverseproxy
 
       - run:
           name: Push images
           command: |
             echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-            docker push rasterayzer/udagram-frontend
-            docker push rasterayzer/udagram-api-feed
-            docker push rasterayzer/udagram-api-user
-            docker push rasterayzer/udagram-reverseproxy
+            docker push nvfede/udagram-frontend
+            docker push nvfede/udagram-api-feed
+            docker push nvfede/udagram-api-user
+            docker push nvfede/udagram-reverseproxy
     environment:
       DOCKER_USERNAME: "$DOCKER_USERNAME"
       DOCKER_PASSWORD: "$DOCKER_PASSWORD"
